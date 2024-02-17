@@ -11,6 +11,11 @@ const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
 using namespace std;
 
+struct Document {
+    int id;
+    int relevance;
+};
+
 string ReadLine() {
     string s;
     getline(cin, s);
@@ -68,7 +73,7 @@ void AddDocument(map<string, set<int>>& word_to_documents,
 }
 
 // For each document returns its id and relevance
-vector<pair<int, int>> FindAllDocuments(
+vector<Document> FindAllDocuments(
         const map<string, set<int>>& word_to_documents,
         const set<string>& stop_words,
         const string& query) {
@@ -83,29 +88,30 @@ vector<pair<int, int>> FindAllDocuments(
         }
     }
 
-    vector<pair<int, int>> found_documents;
-    for (auto [relevance, document_id] : document_to_relevance) {
-        found_documents.push_back({relevance, document_id});
+    vector<Document> found_documents;
+    for (auto [id, relevance] : document_to_relevance) {
+        found_documents.push_back({id, relevance});
     }
     return found_documents;
 }
 
-vector<pair<int, int>> FindTopDocuments(
+bool HasDocumentGreaterRelevance(const Document& lhs, const Document& rhs) {
+		return lhs.relevance > rhs.relevance;
+}
+
+vector<Document> FindTopDocuments(
         const map<string, set<int>>& word_to_documents,
         const set<string>& stop_words,
         const string& query) {
     auto find_top_documents = FindAllDocuments(word_to_documents, stop_words, query);
     
-    sort(execution::par, find_top_documents.begin(), find_top_documents.end());
-    reverse(execution::par, find_top_documents.begin(), find_top_documents.end());
+    sort(execution::par, find_top_documents.begin(), find_top_documents.end(), HasDocumentGreaterRelevance);
+   // reverse(execution::par, find_top_documents.begin(), find_top_documents.end());
     
     if(find_top_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
         find_top_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
     }
-    for(auto& find_top_docum : find_top_documents) {
-        swap(find_top_docum.first, find_top_docum.second);
-    }
-
+    
     return find_top_documents;
 }
 
