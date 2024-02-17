@@ -9,10 +9,10 @@ using namespace std;
 
 const int SAMPLE_COUNT = 5;
 
-vector<int> CountNamesLong(const set<string>& storage, const vector<string>& candidates) {
+vector<int> CountNames(const set<string>& storage, const vector<string>& candidates) {
     vector<int> output;
     for (auto& name: candidates) {
-        output.push_back(count(storage.begin(), storage.end(), name));
+        output.push_back(storage.count(name));
     }
     return output;
 }
@@ -36,7 +36,7 @@ int main() {
     cout << "Testing slow version" << endl;
     for (int i = 0; i < SAMPLE_COUNT; ++i) {
         auto begin = chrono::steady_clock::now();
-        CountNamesLong(s, v);
+        CountNames(s, v);
         auto end = chrono::steady_clock::now();
         cout << "Time difference Long = "s << chrono::duration_cast<chrono::microseconds>(end - begin).count() << "[µs]"s << endl;
     }
