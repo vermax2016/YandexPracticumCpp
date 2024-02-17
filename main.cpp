@@ -5,6 +5,8 @@
 #include <vector>
 #include <algorithm>
 
+const int MAX_RESULT_DOCUMENT_COUNT = 5;
+
 using namespace std;
 
 string ReadLine() {
@@ -64,7 +66,7 @@ void AddDocument(map<string, set<int>>& word_to_documents,
 }
 
 // For each document returns its id and relevance
-vector<pair<int, int>> FindDocuments(
+vector<pair<int, int>> FindAllDocuments(
         const map<string, set<int>>& word_to_documents,
         const set<string>& stop_words,
         const string& query) {
@@ -80,13 +82,30 @@ vector<pair<int, int>> FindDocuments(
     }
 
     vector<pair<int, int>> found_documents;
-    for (auto [document_id, relevance] : document_to_relevance) {
-        found_documents.push_back({document_id, relevance});
+    for (auto [relevance, document_id] : document_to_relevance) {
+        found_documents.push_back({relevance, document_id});
     }
     return found_documents;
 }
 
+vector<pair<int, int>> FindTopDocuments(
+        const map<string, set<int>>& word_to_documents,
+        const set<string>& stop_words,
+        const string& query) {
+    auto find_top_documents = FindAllDocuments(word_to_documents, stop_words, query);
+    
+    sort(find_top_documents.begin(), find_top_documents.end());
+    reverse(find_top_documents.begin(), find_top_documents.end());
+    
+    if(find_top_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
+        find_top_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
+    }
+    for(auto& find_top_docum : find_top_documents) {
+        swap(find_top_docum.first, find_top_docum.second);
+    }
 
+    return find_top_documents;
+}
 
 int main() {
     const string stop_words_joined = ReadLine();
@@ -100,7 +119,7 @@ int main() {
     }
 
     const string query = ReadLine();
-    for (auto [document_id, relevance] : FindDocuments(word_to_documents, stop_words, query)) {
+    for (auto [document_id, relevance] : FindTopDocuments(word_to_documents, stop_words, query)) {
         cout << "{ document_id = "s << document_id << ", relevance = "s << relevance << " }"s << endl;
     }
 }
