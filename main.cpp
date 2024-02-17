@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <utility>
+#include <execution>
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
@@ -94,8 +96,8 @@ vector<pair<int, int>> FindTopDocuments(
         const string& query) {
     auto find_top_documents = FindAllDocuments(word_to_documents, stop_words, query);
     
-    sort(find_top_documents.begin(), find_top_documents.end());
-    reverse(find_top_documents.begin(), find_top_documents.end());
+    sort(execution::par, find_top_documents.begin(), find_top_documents.end());
+    reverse(execution::par, find_top_documents.begin(), find_top_documents.end());
     
     if(find_top_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
         find_top_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
