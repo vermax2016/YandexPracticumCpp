@@ -66,7 +66,10 @@ public:
 
     vector<Document> FindTopDocuments(const string& query) const {
         auto find_top_documents = FindAllDocuments(query);
-        sort(execution::par, find_top_documents.begin(), find_top_documents.end(), HasDocumentGreaterRelevance);
+        sort(execution::par, find_top_documents.begin(), find_top_documents.end(), [](const Document& lhs, const Document& rhs)
+            {
+            return lhs.relevance > rhs.relevance;
+            });
        
         if(find_top_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
             find_top_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
@@ -121,7 +124,6 @@ SearchServer CreateSearchServer() {
 }
 
 int main() {
-    
     const auto create_search_server = CreateSearchServer();
     const string query = ReadLine();
     
