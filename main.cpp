@@ -40,34 +40,35 @@ vector<string> SplitIntoWords(const string& text) {
     return words;
 }
 
-set<string> ParseStopWords(const string& text) {
-    set<string> stop_words;
-    for (const string& word : SplitIntoWords(text)) {
-        stop_words.insert(word);
-    }
-    return stop_words;
-}
 
-vector<string> SplitIntoWordsNoStop(const string& text, const set<string>& stop_words) {
+
+class SearchServer {
+public:
+    void SetStopWords(const string& text) {
+        set<string> stop_words;
+        for (const string& word : SplitIntoWords(text)) {
+            stop_words_.insert(word);
+        }
+    }
+
+    void AddDocument(int document_id, const string& document) {
+        for (const string& word : SplitIntoWordsNoStop(document)) {
+        word_to_documents_[word].insert(document_id);
+        }
+    }
+private:
+    map<string, set<int>> word_to_documents_;
+    set<string> stop_words_;
+    
+    vector<string> SplitIntoWordsNoStop(const string& text) {
     vector<string> words;
     for (const string& word : SplitIntoWords(text)) {
-        if (stop_words.count(word) == 0) {
+        if (stop_words_.count(word) == 0) {
             words.push_back(word);
         }
     }
     return words;
 }
-
-class SearchServer {
-public:
-    void AddDocument(int document_id, const string& document) {
-        for (const string& word : SplitIntoWordsNoStop(document, stop_words)) {
-        word_to_documents[word].insert(document_id);
-        }
-    }
-private:
-    map<string, set<int>>& word_to_documents;
-    const set<string>& stop_words;
 
 };
 
@@ -119,16 +120,32 @@ vector<Document> FindTopDocuments(
     return find_top_documents;
 }
 
-int main() {
-    const string stop_words_joined = ReadLine();
-    const set<string> stop_words = ParseStopWords(stop_words_joined);
+SearchServer CreateSearchServer() {
+    SearchServer search_server;
+    search_server.SetStopWords(ReadLine());
 
     // Read documents
-    map<string, set<int>> word_to_documents;
     const int document_count = ReadLineWithNumber();
-    for (int document_id = 0; document_id < document_count; ++document_id) {
-        AddDocument(word_to_documents, stop_words, document_id, ReadLine());
+    for(int document_id = 0; document_id < document_count; ++document_id) {
+        search_server.AddDocument(document_id, ReadLine());
     }
+
+    return search_server;
+}
+
+int main() {
+    
+
+
+    // const string stop_words_joined = ReadLine();
+    // const set<string> stop_words = ParseStopWords(stop_words_joined);
+
+    // Read documents
+    // map<string, set<int>> word_to_documents;
+    // const int document_count = ReadLineWithNumber();
+    // for (int document_id = 0; document_id < document_count; ++document_id) {
+    //     AddDocument(word_to_documents, stop_words, document_id, ReadLine());
+    // }
 
     const string query = ReadLine();
     for (auto [document_id, relevance] : FindTopDocuments(word_to_documents, stop_words, query)) {
