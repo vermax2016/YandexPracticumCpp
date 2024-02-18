@@ -11,11 +11,6 @@ const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
 using namespace std;
 
-struct Document {
-    int id;
-    int relevance;
-};
-
 string ReadLine() {
     string s;
     getline(cin, s);
@@ -63,14 +58,23 @@ vector<string> SplitIntoWordsNoStop(const string& text, const set<string>& stop_
     return words;
 }
 
-void AddDocument(map<string, set<int>>& word_to_documents,
-                 const set<string>& stop_words,
-                 int document_id,
-                 const string& document) {
-    for (const string& word : SplitIntoWordsNoStop(document, stop_words)) {
+class SearchServer {
+public:
+    void AddDocument(int document_id, const string& document) {
+        for (const string& word : SplitIntoWordsNoStop(document, stop_words)) {
         word_to_documents[word].insert(document_id);
+        }
     }
-}
+private:
+    map<string, set<int>>& word_to_documents;
+    const set<string>& stop_words;
+
+};
+
+struct Document {
+    int id;
+    int relevance;
+};
 
 // For each document returns its id and relevance
 vector<Document> FindAllDocuments(
