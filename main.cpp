@@ -35,7 +35,7 @@ bool HasDocumentGreaterRelevance(const Document& lhs, const Document& rhs) {
 
 class SearchServer {
 public:
-    vector<string> SplitIntoWords(const string& text) {
+    vector<string> SplitIntoWords(const string& text) const {
         vector<string> words;
         string word;
         for (const char c : text) {
@@ -64,7 +64,7 @@ public:
         }
     }
 
-    vector<Document> FindTopDocuments(const string& query) {
+    vector<Document> FindTopDocuments(const string& query) const {
         auto find_top_documents = FindAllDocuments(query);
         sort(execution::par, find_top_documents.begin(), find_top_documents.end(), HasDocumentGreaterRelevance);
        
@@ -78,7 +78,7 @@ private:
     map<string, set<int>> word_to_documents_;
     set<string> stop_words_;
     
-    vector<string> SplitIntoWordsNoStop(const string& text) {
+    vector<string> SplitIntoWordsNoStop(const string& text) const {
         vector<string> words;
         for (const string& word : SplitIntoWords(text)) {
             if (stop_words_.count(word) == 0) {
@@ -87,7 +87,7 @@ private:
         }
         return words;
     }
-    vector<Document> FindAllDocuments(const string& query) {
+    vector<Document> FindAllDocuments(const string& query) const {
         const vector<string> query_words_ = SplitIntoWordsNoStop(query);
         map<int, int> document_to_relevance;
         for (const string& word : query_words_) {
@@ -122,7 +122,7 @@ SearchServer CreateSearchServer() {
 
 int main() {
     
-    auto create_search_server = CreateSearchServer();
+    const auto create_search_server = CreateSearchServer();
     const string query = ReadLine();
     
     for (auto [document_id, relevance] : create_search_server.FindTopDocuments(query)) {
