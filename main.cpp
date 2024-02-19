@@ -16,23 +16,19 @@ string ReadLine() {
     getline(cin, s);
     return s;
 }
-
 int ReadLineWithNumber() {
     int result;
     cin >> result;
     ReadLine();
     return result;
 }
-
 struct Document {
     int id;
     int relevance;
 };
-
 bool HasDocumentGreaterRelevance(const Document& lhs, const Document& rhs) {
 		return lhs.relevance > rhs.relevance;
 }
-
 class SearchServer {
 public:
     vector<string> SplitIntoWords(const string& text) const {
@@ -47,23 +43,19 @@ public:
             }
         }
         words.push_back(word);
-
         return words;
     }
-
     void SetStopWords(const string& text) {
         
         for (const string& word : SplitIntoWords(text)) {
             stop_words_.insert(word);
         }
     }
-
     void AddDocument(int document_id, const string& document) {
         for (const string& word : SplitIntoWordsNoStop(document)) {
         word_to_documents_[word].insert(document_id);
         }
     }
-
     vector<Document> FindTopDocuments(const string& query) const {
         auto find_top_documents = FindAllDocuments(query);
         sort(execution::par, find_top_documents.begin(), find_top_documents.end(), [](const Document& lhs, const Document& rhs)
@@ -76,7 +68,6 @@ public:
         }
         return find_top_documents;
     }
-
 private:
     map<string, set<int>> word_to_documents_;
     set<string> stop_words_;
@@ -101,7 +92,6 @@ private:
             ++document_to_relevance[document_id];
             }
         }
-
         vector<Document> found_documents;
         for (auto [id, relevance] : document_to_relevance) {
             found_documents.push_back({id, relevance});
@@ -109,20 +99,16 @@ private:
         return found_documents;
     }
 };
-
 SearchServer CreateSearchServer() {
     SearchServer search_server;
     search_server.SetStopWords(ReadLine());
-
     // Read documents
     const int document_count = ReadLineWithNumber();
     for(int document_id = 0; document_id < document_count; ++document_id) {
         search_server.AddDocument(document_id, ReadLine());
     }
-
     return search_server;
 }
-
 int main() {
     const auto create_search_server = CreateSearchServer();
     const string query = ReadLine();
