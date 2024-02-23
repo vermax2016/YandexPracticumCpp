@@ -1,3 +1,6 @@
 .vscode
 *.exe
-*.sln
+SearchServer\SearchServer\x64\
+SearchServer\x64\
+\SearchServer\SearchServer\*.sln
+SearchServer\.vs\
