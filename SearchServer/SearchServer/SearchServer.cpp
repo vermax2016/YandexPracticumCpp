@@ -69,7 +69,7 @@ public:
     void AddDocument(int document_id, const string& document) {
         vector<string> split_into_words = SplitIntoWordsNoStop(document);
         double split_into_word_size = split_into_words.size();
-        
+
         ++document_count_;
 
         for (const string& word : split_into_words) {
@@ -126,7 +126,7 @@ private:
     }
 
     double IdfWordsRequest(const string& Word) const {
-        
+
         return log(document_count_ * 1.0 / word_to_documents_freqs_.at(Word).size());
     }
 
@@ -140,7 +140,7 @@ private:
             if (word_to_documents_freqs_.count(word) == 0) {
                 continue;
             }
-            
+
             const double idf = IdfWordsRequest(word);
 
             for (const auto [document_id, tf] : word_to_documents_freqs_.at(word)) {
