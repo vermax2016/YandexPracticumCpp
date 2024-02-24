@@ -2,5 +2,5 @@
 *.exe
 SearchServer\SearchServer\x64\
 SearchServer\x64\
-\SearchServer\SearchServer\*.sln
+SearchServer\SearchServer\*.sln
 SearchServer\.vs\

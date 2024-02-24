@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <utility>
 #include <execution>
+#include <cmath>
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
@@ -26,7 +27,7 @@ int ReadLineWithNumber() {
 
 struct Document {
     int id;
-    int relevance;
+    double relevance;
 };
 
 struct Query {
@@ -40,6 +41,7 @@ bool HasDocumentGreaterRelevance(const Document& lhs, const Document& rhs) {
 
 class SearchServer {
 public:
+
     vector<string> SplitIntoWords(const string& text) const {
         vector<string> words;
         string word;
@@ -65,14 +67,24 @@ public:
     }
 
     void AddDocument(int document_id, const string& document) {
-        for (const string& word : SplitIntoWordsNoStop(document)) {
-            word_to_documents_[word].insert(document_id);
+        vector<string> split_into_words = SplitIntoWordsNoStop(document);
+        double split_into_word_size = split_into_words.size();
+        
+        ++document_count_;
+
+        for (const string& word : split_into_words) {
+            double freq_word_in_doc = count(split_into_words.begin(), split_into_words.end(), word);
+            double tf = freq_word_in_doc / split_into_word_size;
+
+            word_to_documents_freqs_[word].insert({ document_id, tf });
         }
     }
 
     vector<Document> FindTopDocuments(const string& query) const {
         vector<Document> find_top_documents = FindAllDocuments(query);
-        sort(execution::par, find_top_documents.begin(), find_top_documents.end(), [](const Document& lhs, const Document& rhs)
+        sort(execution::par, find_top_documents.begin(),           //
+            find_top_documents.end(),                              //
+            [](const Document& lhs, const Document& rhs)           //
             {
                 return lhs.relevance > rhs.relevance;
             });
@@ -84,8 +96,9 @@ public:
     }
 
 private:
-    map<string, set<int>> word_to_documents_;
+    map<string, map<int, double>> word_to_documents_freqs_;
     set<string> stop_words_;
+    int document_count_ = 0;
 
     vector<string> SplitIntoWordsNoStop(const string& text) const {
         vector<string> words;
@@ -112,26 +125,35 @@ private:
         return query;
     }
 
+    double IdfWordsRequest(const string& Word) const {
+        
+        return log(document_count_ * 1.0 / word_to_documents_freqs_.at(Word).size());
+    }
+
     vector<Document> FindAllDocuments(const string& query) const {
         Query Query_words = ParseQuery(query);
         const vector<string> query_words_plus = Query_words.PlusWords;
         const vector<string> query_words_minus = Query_words.MinusWords;
-        map<int, int> document_to_relevance;
+        map<int, double> document_to_relevance;
 
         for (const string& word : query_words_plus) {
-            if (word_to_documents_.count(word) == 0) {
+            if (word_to_documents_freqs_.count(word) == 0) {
                 continue;
             }
-            for (const int document_id : word_to_documents_.at(word)) {
-                ++document_to_relevance[document_id];
+            
+            const double idf = IdfWordsRequest(word);
+
+            for (const auto [document_id, tf] : word_to_documents_freqs_.at(word)) {
+
+                document_to_relevance[document_id] += tf * idf;
             }
         }
 
         for (const string& word : query_words_minus) {
-            if (word_to_documents_.count(word) == 0) {
+            if (word_to_documents_freqs_.count(word) == 0) {
                 continue;
             }
-            for (const int document_id : word_to_documents_.at(word)) {
+            for (const auto& [document_id, tf] : word_to_documents_freqs_.at(word)) {
                 document_to_relevance.erase(document_id);
             }
         }
