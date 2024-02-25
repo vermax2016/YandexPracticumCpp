@@ -7,6 +7,7 @@
 #include <utility>
 #include <execution>
 #include <cmath>
+#include <numeric>
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
@@ -16,6 +17,19 @@ string ReadLine() {
     string s;
     getline(cin, s);
     return s;
+}
+
+vector<int> ReadRating() {
+    int count;
+    cin >> count;
+    vector<int> ratings;
+    for (int i = 0; i < count; ++i) {
+        int r;
+        cin >> r;
+        ratings.push_back(r);
+    }
+    ReadLine();
+    return ratings;
 }
 
 int ReadLineWithNumber() {
@@ -66,11 +80,26 @@ public:
         }
     }
 
-    void AddDocument(int document_id, const string& document) {
+    int ComputeAverageRating(const vector<int>& ratings) {
+
+        int summ_ratings = accumulate(ratings.begin(), ratings.end(), 0);
+        int rating_size = ratings.size();
+        int rating_middle;
+        if (!ratings.empty()) {
+            return rating_middle = summ_ratings / rating_size;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    void AddDocument(int document_id, const string& document, const vector<int>& ratings) {
         vector<string> split_into_words = SplitIntoWordsNoStop(document);
         double split_into_word_size = split_into_words.size();
 
         ++document_count_;
+
+        rating[document_id] = ComputeAverageRating(ratings);
 
         for (const string& word : split_into_words) {
             double freq_word_in_doc = count(split_into_words.begin(), split_into_words.end(), word);
@@ -95,10 +124,15 @@ public:
         return find_top_documents;
     }
 
+    int FindRating(int document_id) const {
+        return rating.at(document_id);
+    }
+
 private:
     map<string, map<int, double>> word_to_documents_freqs_;
     set<string> stop_words_;
     int document_count_ = 0;
+    map<int, int> rating;
 
     vector<string> SplitIntoWordsNoStop(const string& text) const {
         vector<string> words;
@@ -172,7 +206,9 @@ SearchServer CreateSearchServer() {
 
     const int document_count = ReadLineWithNumber();
     for (int document_id = 0; document_id < document_count; ++document_id) {
-        search_server.AddDocument(document_id, ReadLine());
+        const string read_document = ReadLine();
+        vector<int> read_rating = ReadRating();
+        search_server.AddDocument(document_id, read_document, read_rating);
     }
     return search_server;
 }
@@ -182,6 +218,8 @@ int main() {
 
     const string query = ReadLine();
     for (auto [document_id, relevance] : create_search_server.FindTopDocuments(query)) {
-        cout << "{ document_id = "s << document_id << ", relevance = "s << relevance << " }"s << endl;
+
+        cout << "{ document_id = "s << document_id << ", relevance = "s << relevance << ", rating = "s << //
+            create_search_server.FindRating(document_id) << " }"s << endl;
     }
 }
