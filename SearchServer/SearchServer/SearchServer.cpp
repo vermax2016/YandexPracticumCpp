@@ -80,7 +80,7 @@ public:
         }
     }
 
-    int ComputeAverageRating(const vector<int>& ratings) {
+   static int ComputeAverageRating(const vector<int>& ratings) {
 
         int summ_ratings = accumulate(ratings.begin(), ratings.end(), 0);
         int rating_size = ratings.size();
