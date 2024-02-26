@@ -7,7 +7,6 @@
 #include <utility>
 #include <execution>
 #include <cmath>
-#include <numeric>
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
