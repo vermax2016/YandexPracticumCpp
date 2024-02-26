@@ -191,7 +191,6 @@ private:
                 document_to_relevance.erase(document_id);
             }
         }
-
         vector<Document> found_documents;
         for (auto [id, relevance] : document_to_relevance) {
             found_documents.push_back({ id, relevance });
@@ -215,11 +214,9 @@ SearchServer CreateSearchServer() {
 
 int main() {
     const auto create_search_server = CreateSearchServer();
-
     const string query = ReadLine();
     for (auto [document_id, relevance] : create_search_server.FindTopDocuments(query)) {
-
-        cout << "{ document_id = "s << document_id << ", relevance = "s << relevance << ", rating = "s << //
-            create_search_server.FindRating(document_id) << " }"s << endl;
+        int rating = create_search_server.FindRating(document_id);
+        cout << "{ document_id = "s << document_id << ", relevance = "s << relevance << ", rating = "s << rating << " }"s << endl;
     }
 }
