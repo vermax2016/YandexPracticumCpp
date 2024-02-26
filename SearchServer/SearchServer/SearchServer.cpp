@@ -81,16 +81,13 @@ public:
     }
 
    static int ComputeAverageRating(const vector<int>& ratings) {
-
-        int summ_ratings = accumulate(ratings.begin(), ratings.end(), 0);
-        int rating_size = ratings.size();
-        int rating_middle;
-        if (!ratings.empty()) {
-            return rating_middle = summ_ratings / rating_size;
-        }
-        else {
-            return 0;
-        }
+        if (ratings.size()) return 0;
+        
+       int summ_ratings = 0;
+       for (const int rating : ratings) {
+               summ_ratings += rating;
+           }
+        return summ_ratings / static_cast<int>(ratings.size());
     }
 
     void AddDocument(int document_id, const string& document, const vector<int>& ratings) {
