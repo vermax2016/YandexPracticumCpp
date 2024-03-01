@@ -18,19 +18,6 @@ string ReadLine() {
     return s;
 }
 
-vector<int> ReadRating() {
-    int count;
-    cin >> count;
-    vector<int> ratings;
-    for (int i = 0; i < count; ++i) {
-        int r;
-        cin >> r;
-        ratings.push_back(r);
-    }
-    ReadLine();
-    return ratings;
-}
-
 int ReadLineWithNumber() {
     int result;
     cin >> result;
@@ -94,7 +81,7 @@ public:
         document_status.emplace(document_id, status);
     }
 
-    vector<Document> FindTopDocuments(const string& raw_query, DocumentStatus status) const {
+    vector<Document> FindTopDocuments(const string& raw_query, DocumentStatus status = DocumentStatus::ACTUAL) const {
         vector<Document> find_top_documents = FindAllDocuments(raw_query);
         sort(execution::par, find_top_documents.begin(),           //
             find_top_documents.end(),                              //
@@ -111,7 +98,6 @@ public:
                     rating });
             }
         }
-        
 
         if (top_document_status.size() > MAX_RESULT_DOCUMENT_COUNT) {
             top_document_status.resize(MAX_RESULT_DOCUMENT_COUNT);
@@ -192,15 +178,17 @@ private:
                 document_to_relevance[document_id] += tf * idf;
             }
         }
-
-        for (const string& word : query_words_minus) {
-            if (word_to_documents_freqs_.count(word) == 0) {
-                continue;
-            }
-            for (const auto& [document_id, tf] : word_to_documents_freqs_.at(word)) {
-                document_to_relevance.erase(document_id);
+        if (!query_words_minus.empty()) {
+            for (const string& word : query_words_minus) {
+                if (word_to_documents_freqs_.count(word) == 0) {
+                    continue;
+                }
+                for (const auto& [document_id, tf] : word_to_documents_freqs_.at(word)) {
+                    document_to_relevance.erase(document_id);
+                }
             }
         }
+        
         vector<Document> found_documents;
         for (auto [id, relevance] : document_to_relevance) {
             found_documents.push_back({
@@ -230,7 +218,7 @@ int main() {
     search_server.AddDocument(3, "ухоженный скворец евгений"s, DocumentStatus::BANNED, { 9 });
 
     cout << "ACTUAL:"s << endl;
-    for (const Document& document : search_server.FindTopDocuments("пушистый ухоженный кот"s, DocumentStatus::ACTUAL)) {
+    for (const Document& document : search_server.FindTopDocuments("пушистый ухоженный кот"s)) {
         PrintDocument(document);
     }
 
