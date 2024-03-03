@@ -226,5 +226,6 @@ int main() {
     for (const Document& document : search_server.FindTopDocuments("пушистый ухоженный кот"s, DocumentStatus::BANNED)) {
         PrintDocument(document);
     }
+
     return 0;
 }
