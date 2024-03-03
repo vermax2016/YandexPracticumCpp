@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <tuple>
 
 using namespace std;
 
@@ -15,13 +16,17 @@ struct Document {
     Status status;
     double relevance;
     int rating;
+    auto MakeKey() const;
 };
+
+auto Document::MakeKey() const {
+return tuple(status, rating * -1, relevance * -1);
+}
 
 void SortDocuments(vector<Document>& matched_documents) {            
     sort(matched_documents.begin(), matched_documents.end(),
          [](const Document& lhs, const Document& rhs) {
-             return lhs.status < rhs.status || (lhs.status == rhs.status && pair(lhs.rating, lhs.relevance)
-                  > pair(rhs.rating, rhs.relevance));
+             return lhs.MakeKey() < rhs.MakeKey(); 
          });
 }
 
